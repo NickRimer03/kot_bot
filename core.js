@@ -54,9 +54,11 @@ Client.on("message", (message) => {
 
   // COMMON COMMANDS
   switch (cmd) {
+    case "?":
+    case "h":
     case "help":
       Channel.send(`
-\`kot help\` -- displays all of the help commands
+\`kot help\` \`(aliases: h, ?)\` -- displays all of the help commands
 \`kot ping\` -- reply with pong!
 \`kot pong\` -- reply with ping!
 \`kot echo <text>\` -- reply back with <text>
@@ -131,4 +133,4 @@ Client.on("message", (message) => {
   }
 });
 
-Client.login(process.env.BOT_TOKEN);
+Client.login(process.argv[2] || process.env.BOT_TOKEN);
