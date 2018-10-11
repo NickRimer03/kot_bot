@@ -2,6 +2,16 @@ const Discord = require("discord.js");
 const Config = require("./config.json");
 const Request = require("request");
 
+const Buktopuha = {
+  questions: require("./result.js"),
+  sections: [],
+  qCount: []
+};
+Buktopuha.questions.forEach((section) => {
+  Buktopuha.sections.push(section.name);
+  Buktopuha.qCount.push(section.count);
+});
+
 const Client = new Discord.Client();
 
 const phrases = [
@@ -115,6 +125,19 @@ Client.on("message", (message) => {
         Channel.send(answer);
         console.log(`-- ${question} ${answer} --`);
       }
+      break;
+
+    case "b":
+    case "buktopuha":
+      const str = [];
+      Buktopuha.sections.forEach((name, i) => {
+        str.push(`${name} (${Buktopuha.qCount[i]})`);
+      });
+      Channel.send(`
+Викторина
+Разделов: ${Buktopuha.questions.length}
+Разделы: ${str.join(", ")}
+      `);
       break;
 
     // PROTECTED COMMAND TRYING
