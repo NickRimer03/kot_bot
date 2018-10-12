@@ -239,6 +239,7 @@ Client.on("message", (message) => {
           Channel.send(`
 == buktopuha info ==
 Разделов: ${Buktopuha.questions.length}
+Всего вопросов: ${Buktopuha.qCount.reduce((sum, current) => { return sum += current; }, 0)}
 Разделы: ${str.join(", ")}
           `);
           break;
