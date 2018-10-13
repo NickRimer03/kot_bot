@@ -86,7 +86,7 @@ Client.on("message", (message) => {
     return
 
   // PROTECTED COMMANDS
-  if (Author.id == Config.ownerID) {
+  if (Config.ownerID.includes(Author.id)) {
     switch (cmd) {
       case "c":
       case "clr":
@@ -174,6 +174,10 @@ Client.on("message", (message) => {
       console.log("-- pong? ping! --");
       break;
 
+    case "id":
+      Channel.send(Author.id);
+      break;
+
     case "m":
     case "it":
     case "meow":
@@ -250,6 +254,13 @@ Client.on("message", (message) => {
             Channel.send(Buktopuha.current_question.text);
             console.log("-- buktopuha: question repeat --");
           }
+          break;
+
+        // PROTECTED COMMAND TRYING
+        case "start":
+        case "stop":
+          Channel.send(`${Author}: нет прав доступа к данной команде.`);
+          console.log(`-- buktopuha: unauthorized, command: ${cmd}, arguments: ${args} --`);
           break;
 
         default:
