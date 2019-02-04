@@ -1,9 +1,9 @@
 const Discord = require("discord.js");
 const Config = require("./config.json");
 const Request = require("request");
-const Quiz = require("./quiz.js");
+const Quiz = require("./src/quiz.js");
 const Buktopuha = {
-  questions: require("./result.js"),
+  questions: require("./src/result.js"),
   sections: [],
   qCount: [],
   inProcess: false,
@@ -13,7 +13,7 @@ const Buktopuha = {
   timeout: null,
   TIMEOUT: 30000
 };
-Buktopuha.questions.forEach((section) => {
+Buktopuha.questions.forEach(section => {
   Buktopuha.sections.push(section.name);
   Buktopuha.qCount.push(section.count);
 });
@@ -21,27 +21,61 @@ Buktopuha.questions.forEach((section) => {
 const Client = new Discord.Client();
 
 const phrases = [
-  ["Бесспорно", "Предрешено", "Никаких сомнений", "Определённо да", "Можешь быть уверен в этом"],
-  ["Мне кажется — «да»", "Вероятнее всего", "Хорошие перспективы", "Знаки говорят — «да»", "Да"],
-  ["Пока не ясно, попробуй снова", "Спроси позже", "Лучше не рассказывать", "Сейчас нельзя предсказать", "Сконцентрируйся и спроси опять"],
-  ["Даже не думай", "Мой ответ — «нет»", "По моим данным — «нет»", "Перспективы не очень хорошие", "Весьма сомнительно"]
+  [
+    "Бесспорно",
+    "Предрешено",
+    "Никаких сомнений",
+    "Определённо да",
+    "Можешь быть уверен в этом"
+  ],
+  [
+    "Мне кажется — «да»",
+    "Вероятнее всего",
+    "Хорошие перспективы",
+    "Знаки говорят — «да»",
+    "Да"
+  ],
+  [
+    "Пока не ясно, попробуй снова",
+    "Спроси позже",
+    "Лучше не рассказывать",
+    "Сейчас нельзя предсказать",
+    "Сконцентрируйся и спроси опять"
+  ],
+  [
+    "Даже не думай",
+    "Мой ответ — «нет»",
+    "По моим данным — «нет»",
+    "Перспективы не очень хорошие",
+    "Весьма сомнительно"
+  ]
 ];
 const hearts = ["💙", "💚", "💛", "❤"];
 
-function getQuestion () {
+function getQuestion() {
   const rnd = Quiz.getRandom(Buktopuha.active_sections.length - 1);
   const _sect = Buktopuha.active_sections[rnd];
 
-  return Buktopuha.current_question = Quiz.next_question(Buktopuha.questions.filter((obj) => { return obj.name == _sect })[0].questions);
+  return (Buktopuha.current_question = Quiz.next_question(
+    Buktopuha.questions.filter(obj => {
+      return obj.name == _sect;
+    })[0].questions
+  ));
 }
 
-function questionOnBoard (Channel) {
+function questionOnBoard(Channel) {
   const question = getQuestion();
   Channel.send(`====================\n${question.text}`);
   Buktopuha.timeout = Client.setTimeout(() => {
     Buktopuha.onQuestion = false;
-    Channel.send(`Никто не ответил на вопрос :( Правильный ответ: ${question.answers.split(";")[0]}`);
-    console.log(`-- no answer :( correct answer: ${question.answers.split(";")[0]} --`);
+    Channel.send(
+      `Никто не ответил на вопрос :( Правильный ответ: ${
+        question.answers.split(";")[0]
+      }`
+    );
+    console.log(
+      `-- no answer :( correct answer: ${question.answers.split(";")[0]} --`
+    );
     questionOnBoard(Channel);
   }, Buktopuha.TIMEOUT);
   Buktopuha.onQuestion = true;
@@ -53,14 +87,13 @@ Client.on("ready", () => {
   console.log("Kot is ready to meow!");
 });
 
-Client.on("message", (message) => {
+Client.on("message", message => {
   const Author = message.author;
   const Channel = message.channel;
   const Message = message.content;
   let Protected = false;
 
-  if (Author.bot)
-    return
+  if (Author.bot) return;
 
   if (Message.trim() == "kot" && !Buktopuha.inProcess)
     Channel.send(`${Author}: Чё хотел?`);
@@ -71,19 +104,26 @@ Client.on("message", (message) => {
         Client.clearTimeout(Buktopuha.timeout);
         Buktopuha.onQuestion = false;
         Channel.send(`${Author}: И это правильный ответ!`);
-        console.log(`-- correct answer! author: ${Author}, answer: ${Message} --`);
+        console.log(
+          `-- correct answer! author: ${Author}, answer: ${Message} --`
+        );
         questionOnBoard(Channel);
       }
-    return
+    return;
   }
 
-  const args = Message.slice(Config.prefix.length).trim().split(/ +/g);
+  const args = Message.slice(Config.prefix.length)
+    .trim()
+    .split(/ +/g);
   const cmd = args.shift().toLowerCase();
 
-  if (Buktopuha.inProcess && !["b", "buktopuha"].includes(cmd))
-    return
-  if (Buktopuha.inProcess && ["b", "buktopuha"].includes(cmd) && !["stop", "q", "question"].includes(args[0]))
-    return
+  if (Buktopuha.inProcess && !["b", "buktopuha"].includes(cmd)) return;
+  if (
+    Buktopuha.inProcess &&
+    ["b", "buktopuha"].includes(cmd) &&
+    !["stop", "q", "question"].includes(args[0])
+  )
+    return;
 
   // PROTECTED COMMANDS
   if (Config.ownerID.includes(Author.id)) {
@@ -105,7 +145,8 @@ Client.on("message", (message) => {
           case "start":
             if (!Buktopuha.inProcess) {
               let Start = false;
-              let section = args[1] == null ? Buktopuha.sections : args[1].toLowerCase();
+              let section =
+                args[1] == null ? Buktopuha.sections : args[1].toLowerCase();
 
               if (args[1] == null) {
                 Channel.send("Играем со всеми разделами.");
@@ -117,13 +158,17 @@ Client.on("message", (message) => {
                 console.log(`-- buktopuha start: ${section} --`);
               } else {
                 Channel.send("Указанный игровой раздел отсутствует.");
-                console.log(`-- buktopuha start error: no section \`${section}\` --`);
+                console.log(
+                  `-- buktopuha start error: no section \`${section}\` --`
+                );
               }
 
               if (Start) {
-                if (!(section instanceof Array))
-                  section = [section];
-                [Buktopuha.inProcess, Buktopuha.active_sections] = [true, section];
+                if (!(section instanceof Array)) section = [section];
+                [Buktopuha.inProcess, Buktopuha.active_sections] = [
+                  true,
+                  section
+                ];
                 questionOnBoard(Channel);
               }
             }
@@ -133,7 +178,11 @@ Client.on("message", (message) => {
           case "stop":
             if (Buktopuha.inProcess) {
               Channel.send("Игра остановлена.");
-              [Buktopuha.inProcess, Buktopuha.onQuestion, Buktopuha.active_sections] = [false, false, ""];
+              [
+                Buktopuha.inProcess,
+                Buktopuha.onQuestion,
+                Buktopuha.active_sections
+              ] = [false, false, ""];
               Client.clearTimeout(Buktopuha.timeout);
               console.log("-- buktopuha stop --");
             }
@@ -143,8 +192,7 @@ Client.on("message", (message) => {
         break;
     }
   }
-  if (Protected)
-    return
+  if (Protected) return;
 
   // COMMON COMMANDS
   switch (cmd) {
@@ -181,10 +229,13 @@ Client.on("message", (message) => {
     case "m":
     case "it":
     case "meow":
-      Request({ url: "http://aws.random.cat/meow", json: true }, (error, response, body) => {
-        Channel.send(body);
-        console.log("-- cat showed --");
-      });
+      Request(
+        { url: "http://aws.random.cat/meow", json: true },
+        (error, response, body) => {
+          Channel.send(body);
+          console.log("-- cat showed --");
+        }
+      );
       break;
 
     case "echo":
@@ -204,12 +255,20 @@ Client.on("message", (message) => {
     case "ball8":
       const question = args.join(" ").trim();
       const sign = question.match(/\?+$/);
-      if (args.length == 0 || sign == null || sign[0].length == question.length) {
+      if (
+        args.length == 0 ||
+        sign == null ||
+        sign[0].length == question.length
+      ) {
         Channel.send(`${Author}: А где, собственно, вопрос?`);
-        console.log(`-- question: ${question}, sign: ${sign} == no question --`);
+        console.log(
+          `-- question: ${question}, sign: ${sign} == no question --`
+        );
       } else {
         const heart = Quiz.getRandom(3);
-        const answer = `${Author}: ${hearts[heart]} ${phrases[heart][Quiz.getRandom(4)]}`;
+        const answer = `${Author}: ${hearts[heart]} ${
+          phrases[heart][Quiz.getRandom(4)]
+        }`;
         Channel.send(answer);
         console.log(`-- ${question} ${answer} --`);
       }
@@ -217,8 +276,7 @@ Client.on("message", (message) => {
 
     case "b":
     case "buktopuha":
-      if (args.length == 0)
-        args.push("?");
+      if (args.length == 0) args.push("?");
 
       switch (args[0]) {
         case "?":
@@ -243,7 +301,9 @@ Client.on("message", (message) => {
           Channel.send(`
 == buktopuha info ==
 Разделов: ${Buktopuha.questions.length}
-Всего вопросов: ${Buktopuha.qCount.reduce((sum, current) => { return sum += current; }, 0)}
+Всего вопросов: ${Buktopuha.qCount.reduce((sum, current) => {
+            return (sum += current);
+          }, 0)}
 Разделы: ${str.join(", ")}
           `);
           break;
@@ -260,12 +320,16 @@ Client.on("message", (message) => {
         case "start":
         case "stop":
           Channel.send(`${Author}: нет прав доступа к данной команде.`);
-          console.log(`-- buktopuha: unauthorized, command: ${cmd}, arguments: ${args} --`);
+          console.log(
+            `-- buktopuha: unauthorized, command: ${cmd}, arguments: ${args} --`
+          );
           break;
 
         default:
           Channel.send("Неизвестная команда викторины.");
-          console.log(`-- buktopuha: unknown command ${cmd}, arguments: ${args} --`);
+          console.log(
+            `-- buktopuha: unknown command ${cmd}, arguments: ${args} --`
+          );
       }
       break;
 
