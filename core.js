@@ -1,7 +1,8 @@
 const Discord = require("discord.js");
-const Config = require("./config.json");
 const Request = require("request");
+const Config = require("./config.json");
 const Quiz = require("./src/quiz.js");
+const Utils = require("./src/utils.js");
 const Buktopuha = {
   questions: require("./src/result.js"),
   sections: [],
@@ -53,7 +54,7 @@ const phrases = [
 const hearts = ["💙", "💚", "💛", "❤"];
 
 function getQuestion() {
-  const rnd = Quiz.getRandom(Buktopuha.active_sections.length - 1);
+  const rnd = Utils.getRandom(Buktopuha.active_sections.length - 1);
   const _sect = Buktopuha.active_sections[rnd];
 
   return (Buktopuha.current_question = Quiz.next_question(
@@ -246,7 +247,7 @@ Client.on("message", message => {
       break;
 
     case "d20":
-      const d20 = Quiz.getRandom(20, 1);
+      const d20 = Utils.getRandom(20, 1);
       Channel.send(d20);
       console.log(`-- d20 roll: ${d20} --`);
       break;
@@ -265,9 +266,9 @@ Client.on("message", message => {
           `-- question: ${question}, sign: ${sign} == no question --`
         );
       } else {
-        const heart = Quiz.getRandom(3);
+        const heart = Utils.getRandom(3);
         const answer = `${Author}: ${hearts[heart]} ${
-          phrases[heart][Quiz.getRandom(4)]
+          phrases[heart][Utils.getRandom(4)]
         }`;
         Channel.send(answer);
         console.log(`-- ${question} ${answer} --`);
