@@ -4,7 +4,7 @@
   "description": "",
   "main": "core.js",
   "scripts": {
-    "start": "node core.js",
+    "start": "node --experimental-modules core.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

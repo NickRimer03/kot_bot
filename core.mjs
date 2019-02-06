@@ -1,10 +1,12 @@
-const Discord = require("discord.js");
-const Request = require("request");
-const Config = require("./config.json");
-const Quiz = require("./src/quiz.js");
-const Utils = require("./src/utils.js");
+import Discord from "discord.js";
+import Request from "request";
+import Config from "./config.json";
+import Quiz from "./src/quiz.mjs";
+import Utils from "./src/utils.mjs";
+import questions from "./res/questions.mjs";
+
 const Buktopuha = {
-  questions: require("./src/result.js"),
+  questions,
   sections: [],
   qCount: [],
   inProcess: false,
